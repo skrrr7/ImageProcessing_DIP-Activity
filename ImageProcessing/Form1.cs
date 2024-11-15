@@ -1,9 +1,16 @@
+using WebCamLib;
+using ImageProcess2;
+using System;
+using System.Drawing;
+using System.Drawing.Imaging;
+
 namespace ImageProcessing
 {
     public partial class Form1 : Form
     {
         Bitmap loaded, processed;
         Bitmap imageB, imageA, colorgreen, resultImage;
+        Device[] device;
         public Form1()
         {
             InitializeComponent();
@@ -112,7 +119,7 @@ namespace ImageProcessing
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            device = DeviceManager.GetAllDevices();
         }
 
         private void pictureBox3_Click(object sender, EventArgs e)
@@ -171,6 +178,144 @@ namespace ImageProcessing
         private void saveFileDialog2_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
         {
             resultImage.Save(saveFileDialog2.FileName);
+        }
+
+        private void hToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            bool succes = BitmapFilter.EmbossLaplacian(loaded);
+
+            pictureBox2.Image = loaded;
+        }
+
+        private void dIPToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void smoothToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            bool succes = BitmapFilter.Smooth(loaded, 1);
+
+            pictureBox2.Image = loaded;
+        }
+
+        private void gaussianBlurToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            bool succes = BitmapFilter.GaussianBlur(loaded, 4);
+
+            pictureBox2.Image = loaded;
+        }
+
+        private void sharpenToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            bool succes = BitmapFilter.Sharpen(loaded, 11);
+
+            pictureBox2.Image = loaded;
+        }
+
+        private void meanRemovalToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            bool succes = BitmapFilter.GaussianBlur(loaded, 9);
+
+            pictureBox2.Image = loaded;
+        }
+
+        private void embossingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            bool succes = BitmapFilter.EmbossLaplacian(loaded);
+
+            pictureBox2.Image = loaded;
+        }
+
+        private void edgeDeteckQuickToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            bool succes = BitmapFilter.EdgeDetectQuick(loaded);
+
+            pictureBox2.Image = loaded;
+        }
+
+        private void allDirectionsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            bool succes = BitmapFilter.EmbossLaplacianAllDir(loaded);
+
+            pictureBox2.Image = loaded;
+        }
+
+        private void lossyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            bool succes = BitmapFilter.EmbossLaplacianLossy(loaded);
+
+            pictureBox2.Image = loaded;
+        }
+
+        private void verticalOnlyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            bool succes = BitmapFilter.EmbossLaplacianVertical(loaded);
+
+            pictureBox2.Image = loaded;
+        }
+
+        private void horzVerticalToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            bool succes = BitmapFilter.EmbossLaplacianHorzVert(loaded);
+
+            pictureBox2.Image = loaded;
+        }
+
+        private void onToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            device[0].ShowWindow(pictureBox1);
+        }
+
+        private void offToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            device[0].Stop();
+        }
+
+        private void greyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            IDataObject data;
+            Image bmap;
+            device[0].Sendmessage();
+            data = Clipboard.GetDataObject();
+            bmap = (Image)(data.GetData("System.Drawing.Bitmap", true));
+            Bitmap b = new Bitmap(bmap);
+            BitmapFilter.GrayScale(b);
+            pictureBox2.Image = b;
+        }
+
+        private void mirrorVertToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            processed = new Bitmap(loaded.Width, loaded.Height);
+            Color pixel;
+            for (int x = 0; x < loaded.Width; x++)
+            {
+                for (int y = 0; y < (int)loaded.Height / 2; y++)
+                {
+                    pixel = loaded.GetPixel(x, y);
+                    processed.SetPixel(x, loaded.Height - y - 1, pixel);
+                    pixel = loaded.GetPixel(x, loaded.Height - y - 1);
+                    processed.SetPixel(x, y, pixel);
+                }
+            }
+            pictureBox2.Image = processed;
+        }
+
+        private void mirrorHorizToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            processed = new Bitmap(loaded.Width, loaded.Height);
+            Color pixel;
+            for (int x = 0; x < loaded.Width / 2; x++)
+            {
+                for (int y = 0; y < loaded.Height; y++)
+                {
+                    pixel = loaded.GetPixel(x, y);
+                    processed.SetPixel(loaded.Width - x - 1, y, pixel);
+                    pixel = loaded.GetPixel(loaded.Width - x - 1, y);
+                    processed.SetPixel(x, y, pixel);
+                }
+            }
+            pictureBox2.Image = processed;
         }
     }
 }
